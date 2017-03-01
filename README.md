@@ -5,3 +5,6 @@ Reservation System (Wizme) Wizme is the easy, quick way to find and book the bes
 
 Run the DEMO 
 https://malloboany.000webhostapp.com/wizme/index.phtml
+
+visit our blog 
+https://malloboany.blogspot.com
