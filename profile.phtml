@@ -1,0 +1,399 @@
+<?php
+require_once 'CP.php';
+$SIGN_IN = FALSE;
+if (isset($_COOKIE['EMAIL']) && $_COOKIE['EMAIL'] != '') {
+    $SIGN_IN = TRUE;
+    $EMAIL = filter_input(INPUT_COOKIE, 'EMAIL');
+    $RULE = filter_input(INPUT_COOKIE, 'RULE');
+    $NAME = filter_input(INPUT_COOKIE, 'NAME');
+    $ID = filter_input(INPUT_COOKIE, 'ID');
+
+    //venues data
+    $MyVenues = db_get_venues($ID);
+    //bookings data
+    $MyReq = db_get_bookings($ID);
+    //Messages data
+    if ($RULE == 1) {
+        $MyMessages = db_get_messages();
+    }
+} else {
+    header("Location: index.phtml");
+}
+foreach ($MyVenues as $v) {
+    if (isset($_POST['submit_delete_ven_' . $v['Venue_ID']])) {
+        db_delete_venue($v['Venue_ID']);
+        $MyVenues = db_get_venues($ID);
+    }
+}
+foreach ($MyReq as $value) {
+    if (isset($_POST['submit_accept_book_' . $value['Booking_ID']])) {
+        db_accept_booking($value);
+        $MyReq = db_get_bookings($ID);
+    }
+}
+if (isset($_POST['mSendemail'])) {
+    $mName = filter_input(INPUT_POST, 'mName');
+    $mEmail = filter_input(INPUT_POST, 'mEmail');
+    $mMessage = filter_input(INPUT_POST, 'mMessage');
+
+    db_send_message($mName, $mEmail, $mMessage);
+}
+?>
+
+<html dir="ltr" lang="en-US">
+    <!--<![endif]-->
+    <head>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+
+        <title>Wizme | Profile</title>
+
+        <!-- [favicon] begin -->
+        <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+        <!-- [favicon] end --> 
+
+        <!-- CSS Main -->
+        <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 960px)" href="css/lessthen960.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 600px)" href="css/lessthen600.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 480px)" href="css/lessthen480.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/memento.css"  />
+
+        <!-- CSS Plugin -->
+        <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="css/tipsy.css" type="text/css" media="all" />
+        <link rel='stylesheet' href='css/buttons.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='css/labels.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='css/wells.min.css' type='text/css' media='all' />
+
+        <!-- CSS Slider -->
+        <link rel="stylesheet" href="css/slider-thumbnails.css" type="text/css" media="all" />
+
+        <link rel="stylesheet" type="text/css" media="all" href="css/homes/home.css" />
+
+
+        <!-- FONTS -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin%2Ccyrillic%2Cgreek&amp;ver=3.4.1" type="text/css" media="all" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Shadows+Into+Light&amp;subset=latin%2Ccyrillic%2Cgreek&amp;ver=3.4.1" type="text/css" media="all" />
+        <link rel='stylesheet' href='http://yourinspirationweb.com/demo/memento/wp-content/themes/memento/core/includes/css/font-awesome.css?ver=3.4.1' type='text/css' media='all' />
+        <link rel='stylesheet' href='http://yourinspirationweb.com/demo/memento/wp-content/themes/memento/fonts/socialico/stylesheet.css?ver=3.4.1' type='text/css' media='all' />
+        <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed%3A300%7CPlayfair+Display%3A400italic&#038;ver=3.4.1' type='text/css' media='all' />
+
+        <!-- JavaScripts -->
+        <script type="text/javascript">
+            var yiw_prettyphoto_style = 'pp_default';
+        </script>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.cycle.min.js"></script>
+        <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+        <script type="text/javascript" src="js/jquery.prettyPhoto.js"></script>
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+        <script type="text/javascript" src="js/jquery.tweetable.js"></script>
+        <script type="text/javascript" src="js/jquery.nivo.slider.pack.js"></script>
+        <script type="text/javascript" src="js/jquery.flexslider.min.js"></script>
+        <script type="text/javascript" src="js/jquery.aw-showcase.js"></script>
+        <script type="text/javascript" src="js/superfish.js"></script>
+        <script type='text/javascript' src="js/jquery.eislideshow.js"></script>
+        <script type='text/javascript' src="js/swfobject.js"></script>
+        <script type='text/javascript' src='js/jquery.cookie.js'></script>
+        <script type='text/javascript' src='js/buttons.min.js'></script>
+        <script type='text/javascript' src='js/layerslider.kreaturamedia.jquery-min.js'></script>
+        <script type='text/javascript' src='js/jquery.quicksand.js'></script>
+
+    </head>
+    <body class="no_js responsive boxed-layout chrome ">
+
+        <!-- TOPBAR -->
+        <div id="topbar">
+            <div class="inner group">
+
+                <div class="topbar-left">
+                    <!-- START TWITTER -->
+                    <div id="twitter-slider" class="group">
+                        <div class="tweets-list"></div>
+                        <script type="text/javascript" src="js/twitter.js" ></script>	
+                    </div>
+                    <!-- END TWITTER -->
+                </div>
+
+                <div class="topbar-right">
+                    <ul class="topbar-level-1">
+
+                        <?php
+                        if ($SIGN_IN) {
+                            echo '                               
+                            <li class="login_link"><i class="icon-key"></i><a href="profile.phtml"> Profile(' . $NAME . ') </a></li>
+                            <li class="login_link"><i class="icon-key"></i><a href="signout.php"> SignOut </a></li>';
+                        } else {
+                            echo '
+                                <li class="login_link"><i class="icon-key"></i><a href="login.phtml"> Login </a></li>
+                                <li class="login_link"><i class="icon-key"></i><a href="signup.phtml"> SignUp </a></li>'
+                            ;
+                        }
+                        ?>
+
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <!-- END TOPBAR -->
+
+
+
+        <!-- START WRAPPER -->
+        <div class="wrapper group">
+            <!-- START HEADER -->
+            <div id="header" class="group">
+                <div class="group inner">
+
+                    <!-- START LOGO -->
+                    <div id="logo" class="group">
+                        <h1>
+                            <a class="logo-text" href="index.phtml" >Wiz<span>m</span>e</a>                        
+                        </h1>
+                        <p>THE PLACE WHERE MEETING ROOMS AND CUSTOMERS MEET</p>
+                    </div>
+                    <!-- END LOGO -->  
+
+                    <!-- START NAV -->
+                    <div id="nav" class="group">
+                        <ul id="menu-main-nav" class="level-1">
+
+                            <li>
+                                <a href="index.phtml"><i class="icon-home"></i>Home</a>
+
+                            </li>
+                            
+                             <li>
+                                <a href="venue_list.phtml"><i class="icon-file"></i>Venues</a>
+
+                            </li>
+                            
+                            <?php
+                            if($SIGN_IN){
+                                   echo ' <li>
+                                <a href="newvenue.phtml"><i class="icon-picture"></i> Create Venue</a>
+
+                            </li>';
+                               }
+                                if($RULE == 1){
+                                    echo '<li>
+                                <a href="venue_req.phtml"><i class="icon-film"></i>Requests</a>
+
+                            </li>';
+                                }
+                            ?>
+                            <li>
+                                <a href="http://malloboany.blogspot.com"><i class="icon-calendar"></i>Blog</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- END NAV -->     
+                </div>
+            </div>
+            <!-- END HEADER -->
+
+            <!-- SLIDER -->
+
+
+            <div class="inner home-testimonials home-section group" style="margin-top: 5%">
+                <div class="title">
+                    <h2><img src="images/icons/comment.png" alt="icon-adjust" /> <?php
+                        if ($RULE == 1)
+                            echo 'Admin: ';
+                        else
+                            echo 'Venue Manager: ';
+                        ?>  <span><?php echo $NAME; ?></span></h2>
+                    <p><?php echo $EMAIL; ?></p>
+                </div>
+                
+                <script type="text/javascript" src="js/testimonials.js"></script>	      
+            </div>
+            <div class="inner home-row group" style="padding-top: 5%">
+                <h3 style="color: white">My Venues</h3>
+                <?php
+                if ($MyVenues && count($MyVenues) != 0) {
+                    foreach ($MyVenues as $value) {
+                        $active = ($value['Venue_Active'] == 0) ?
+                                'DEACTIVATED will be Activated after admin accept it' : "ACTIVATED ";
+                        echo' <div class="widget one-third widget-icon-text group">
+                            <h2><i class="icon-envelope"></i> ' . $value['Venue_Name'] . '</h2>
+                            <p>' . db_get_kind_name($value['Venue_Kind']) . '</p>
+                            <p>' . $value['Venue_Price'] . '</p>
+                            <p>' . $value['Venue_Address'] . '</p>
+                            <p>' . $value['Venue_Phone'] . '</p>
+                            <p>' . $active . '</p>
+
+                             <form method="post" >
+                                <div class="p-container">
+                                    <input name ="submit_delete_ven_' . $value['Venue_ID'] . '" class ="btn-red" type="submit"  value="DELETE" >
+                                    <div class="clear"> </div>
+                                </div>
+                            </form>
+
+                        </div>';
+                    }
+                    echo '<a class="btn-large" href="newvenue.phtml">new VENUE</a>';
+                } else {
+                    echo '<h2><i class="icon-envelope"></i> You have no venues yet! create one <a href="newvenue.phtml"> HERE</a> </h2>';
+                }
+                ?>    
+            </div>
+            <div class="clear"></div>
+
+            <div class="inner home-row group" style="padding-top: 5%">
+                <h3 style="color: white">My Bookings Requests</h3>
+                <?php
+                if ($MyReq && count($MyReq) != 0) {
+                    foreach ($MyReq as $value) {
+                        $active = ($value['Booking_Active'] == 0) ?
+                                'Not Accepted' : "Accepted ";
+                        echo' <div class="widget one-third widget-icon-text group">
+                            <h2><i class="icon-envelope"></i> ' . $value['Booking_Name'] . '</h2>
+                            <p>Venue: ' . $value['Venue_Name'] . '</p>                            
+                            <p>From: ' . $value['Booking_From'] . '</p>
+                            <p>To: ' . $value['Booking_To'] . '</p>
+                            <p>' . $value['Booking_Email'] . '</p>
+                            <p>' . $value['Booking_Phone'] . '</p>
+                            <p>' . $active . '</p>
+
+                             ';
+                        if ($active == 'Not Accepted') {
+                            echo '<form method="post" >
+                                <div class="p-container">
+                                    <input name ="submit_accept_book_' . $value['Booking_ID'] . '" class ="btn-green" type="submit"  value="ACCEPT" >
+                                    <div class="clear"> </div>
+                                </div>
+                            </form>';
+                        }
+
+                        echo ' 
+
+                        </div>';
+                    }
+                } else {
+                    echo '<h2><i class="icon-envelope"></i> You have no Bookings Requests yet! </h2>';
+                }
+                ?>         
+
+
+            </div>
+            <div class="clear"></div>
+
+
+            <?php
+            if ($RULE == 1) {
+                echo '<div class="inner home-row group" style="padding-top: 5%">
+                <h3 style="color: white">Visitors Messages</h3>';
+
+                if ($MyMessages && count($MyMessages) != 0) {
+                    foreach ($MyMessages as $value) {
+                        echo' <div class="widget one-third widget-icon-text group">
+                            <h2><i class="icon-envelope"></i> ' . $value['Message_Name'] . '</h2>
+                            <p>' . $value['Message_Email'] . '</p>
+                            <p>' . $value['Message_Content'] . '</p>
+                        </div>';
+                    }
+                } else {
+                    echo '<h2><i class="icon-envelope"></i> You have no Messages! </h2>';
+                }
+                echo ' </div>
+            <div class="clear"></div>';
+            }
+            ?>            
+
+        </div>
+        <!-- END WRAPPER -->
+        <div id="footer" class="sidebar-right">
+            <div class="group inner footer_row_1 footer_cols_3">
+                <div class="quick-contact-widget widget two-third last">
+                    <div class="widget-last widget quick-contact">
+                        <h3>Quick Contact</h3>
+                        <form id="contact-form-example" class="contact-form" method="post" >
+                            <div class="usermessagea"></div>
+
+                            <ul>
+                                <li class="text-field">
+                                    <label for="name-example">
+                                        <text class="label">Name</text>
+                                        <input type ="text" name = "mName"></input>
+                                    </label>
+                                </li>
+                                <li class="text-field">
+                                    <label for="name-example">
+                                        <text class="label">Email</text>
+                                        <input type ="text" name = "mEmail"></input>
+                                    </label>
+                                </li>
+                                <li class="textarea-field">
+                                    <label for="message-example">
+                                        <span class="label">Message</span>
+                                        <input type ="text" name = "mMessage" >  </input>
+                                    </label>
+
+                                </li>
+                                <li class="submit-button">
+                                    <input type="submit" name="mSendemail" value="send message" class="sendmail alignright" />			
+                                </li>
+                            </ul>
+
+                        </form>
+                        <script type="text/javascript">
+            var messages_form_footer = {
+                name: "Insert your name",
+                email: "Insert your email",
+                message: "Insert your message"
+            };
+                        </script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- START FOOTER -->
+        <div id="copyright" class="group">
+            <div class="inner group">
+                <div class="left">
+                    <p >
+                        Copyright <a href="http://wizme.com"><strong>Wizme</strong></a> 2017 -
+                        Powered by <a href="http://malloboany.blogspot.com" ><strong>malloboany</strong></a>
+                    </p>
+                </div>
+                <div class="right">
+                    <a href="http://facebook.com/m.alloboany" class="socials facebook" style="font-size:30px;" title="Facebook">F</a>
+                    <a href="#" class="socials twitter" style="font-size:30px;" title="Twitter">L</a>
+                    <a href="#" class="socials skype" style="font-size:30px;" title="Skype">H</a>
+                    <a href="#" class="socials google" style="font-size:30px;" title="Google">G</a>
+                    <a href="#" class="socials linkedin" style="font-size:30px;" title="Linkedin">I</a>
+                    <a href="#" class="socials rss" style="font-size:30px;" title="Rss">R</a>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="js/jquery.custom.js"></script>
+        <script type="text/javascript" src="js/contact.js"></script>
+
+        <script type="text/javascript">
+
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-36516261-21']);
+            _gaq.push(['_trackPageview']);
+
+            (function () {
+                var ga = document.createElement('script');
+                ga.type = 'text/javascript';
+                ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(ga, s);
+            })();
+
+        </script>		
+    </body>
+</html>

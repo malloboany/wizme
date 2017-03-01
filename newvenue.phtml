@@ -1,0 +1,376 @@
+<?php
+require_once 'CP.php';
+$SIGN_IN = FALSE;
+if (isset($_COOKIE['EMAIL']) && $_COOKIE['EMAIL'] != '' && isset($_COOKIE['RULE']) && $_COOKIE['RULE'] != '') {
+    $SIGN_IN = TRUE;
+    $EMAIL = filter_input(INPUT_COOKIE, 'EMAIL');
+    $RULE = filter_input(INPUT_COOKIE, 'RULE');
+    $NAME = filter_input(INPUT_COOKIE, 'NAME');
+    $ID = filter_input(INPUT_COOKIE, 'ID');
+} else {
+    header("Location: index.phtml");
+}
+
+$message = '';
+$venue_name = "VENUE NAME";
+$venue_kind = 1;
+$venue_price = "VENUE PRICE $";
+$venue_adress = "VENUE ADDRESS";
+$venue_phone = "VENUE PHONE";
+if (isset($_POST['NAME']) && isset($_POST['KIND']) && isset($_POST['PRICE']) && isset($_POST['ADRESS']) && isset($_POST['PHONE'])) {
+    $venue_name = filter_input(INPUT_POST, 'NAME');
+    $venue_kind = filter_input(INPUT_POST, 'KIND');
+    $venue_price = filter_input(INPUT_POST, 'PRICE');
+    $venue_adress = filter_input(INPUT_POST, 'ADRESS');
+    $venue_phone = filter_input(INPUT_POST, 'PHONE');
+
+    $message = Check_Create_Venue($venue_name, $venue_price, $venue_adress, $venue_phone);
+    if ($message == 'success') {
+        $message = db_Create_Venue($venue_name, $venue_kind, filter_input(INPUT_COOKIE, 'ID'), $venue_price, $venue_adress, $venue_phone);
+        if ($message == 'success') {
+            header("Location: profile.phtml");
+        }
+    }
+}
+if (isset($_POST['mSendemail'])) {
+    $mName = filter_input(INPUT_POST, 'mName');
+    $mEmail = filter_input(INPUT_POST, 'mEmail');
+    $mMessage = filter_input(INPUT_POST, 'mMessage');
+
+    db_send_message($mName, $mEmail, $mMessage);
+}
+?>
+
+<html dir="ltr" lang="en-US">
+    <head>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+
+        <title>Wizme | Create a Venue</title>
+
+        <!-- [favicon] begin -->
+        <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+        <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+        <!-- [favicon] end --> 
+
+        <!-- CSS Main -->
+        <link rel="stylesheet" type="text/css" media="all" href="css/reset.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 960px)" href="css/lessthen960.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 600px)" href="css/lessthen600.css" />
+        <link rel="stylesheet" type="text/css" media="screen and (max-width: 480px)" href="css/lessthen480.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/memento.css"  />
+
+        <!-- CSS Plugin -->
+        <link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="css/tipsy.css" type="text/css" media="all" />
+        <link rel='stylesheet' href='css/buttons.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='css/labels.min.css' type='text/css' media='all' />
+        <link rel='stylesheet' href='css/wells.min.css' type='text/css' media='all' />
+
+        <!-- CSS Slider -->
+        <link rel="stylesheet" href="css/slider-thumbnails.css" type="text/css" media="all" />
+
+        <link rel="stylesheet" type="text/css" media="all" href="css/homes/home.css" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/login_style.css" />
+
+        <!-- FONTS -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin%2Ccyrillic%2Cgreek&amp;ver=3.4.1" type="text/css" media="all" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Shadows+Into+Light&amp;subset=latin%2Ccyrillic%2Cgreek&amp;ver=3.4.1" type="text/css" media="all" />
+        <link rel='stylesheet' href='http://yourinspirationweb.com/demo/memento/wp-content/themes/memento/core/includes/css/font-awesome.css?ver=3.4.1' type='text/css' media='all' />
+        <link rel='stylesheet' href='http://yourinspirationweb.com/demo/memento/wp-content/themes/memento/fonts/socialico/stylesheet.css?ver=3.4.1' type='text/css' media='all' />
+        <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed%3A300%7CPlayfair+Display%3A400italic&#038;ver=3.4.1' type='text/css' media='all' />
+
+        <!-- JavaScripts -->
+        <script type="text/javascript">
+            var yiw_prettyphoto_style = 'pp_default';
+        </script>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.cycle.min.js"></script>
+        <script type="text/javascript" src="js/jquery.easing.1.3.js"></script>
+        <script type="text/javascript" src="js/jquery.prettyPhoto.js"></script>
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+        <script type="text/javascript" src="js/jquery.tweetable.js"></script>
+        <script type="text/javascript" src="js/jquery.nivo.slider.pack.js"></script>
+        <script type="text/javascript" src="js/jquery.flexslider.min.js"></script>
+        <script type="text/javascript" src="js/jquery.aw-showcase.js"></script>
+        <script type="text/javascript" src="js/superfish.js"></script>
+        <script type='text/javascript' src="js/jquery.eislideshow.js"></script>
+        <script type='text/javascript' src="js/swfobject.js"></script>
+        <script type='text/javascript' src='js/jquery.cookie.js'></script>
+        <script type='text/javascript' src='js/buttons.min.js'></script>
+        <script type='text/javascript' src='js/layerslider.kreaturamedia.jquery-min.js'></script>
+        <script type='text/javascript' src='js/jquery.quicksand.js'></script>
+
+    </head>
+    <body class="no_js responsive boxed-layout chrome ">
+        <!-- TOPBAR -->
+        <div id="topbar">
+            <div class="inner group">
+
+                <div class="topbar-left">
+                    <!-- START TWITTER -->
+                    <div id="twitter-slider" class="group">
+                        <div class="tweets-list"></div>
+                        <script type="text/javascript" src="js/twitter.js" ></script>	
+                    </div>
+                    <!-- END TWITTER -->
+                </div>
+
+                <div class="topbar-right">
+                    <ul class="topbar-level-1">
+                        <?php
+                        if ($SIGN_IN) {
+                            echo '                               
+                            <li class="login_link"><i class="icon-key"></i><a href="profile.phtml"> Profile(' . $NAME . ') </a></li>
+                            <li class="login_link"><i class="icon-key"></i><a href="signout.php"> SignOut </a></li>';
+                        } else {
+                            echo '
+                                <li class="login_link"><i class="icon-key"></i><a href="login.phtml"> Login </a></li>
+                                <li class="login_link"><i class="icon-key"></i><a href="signup.phtml"> SignUp </a></li>'
+                            ;
+                        }
+                        ?>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+        <!-- END TOPBAR -->
+
+        <!-- START WRAPPER -->
+        <div class="wrapper group">
+            <!-- START HEADER -->
+            <div id="header" class="group">
+                <div class="group inner">
+
+                    <!-- START LOGO -->
+                    <div id="logo" class="group">
+                        <h1>
+                            <a class="logo-text" href="index.phtml">Wiz<span>m</span>e</a>                        
+                        </h1>
+                        <p>THE PLACE WHERE MEETING ROOMS AND CUSTOMERS MEET</p>
+                    </div>
+                    <!-- END LOGO -->  
+
+                    <!-- START NAV -->
+                    <div id="nav" class="group">
+                        <ul id="menu-main-nav" class="level-1">
+
+                            <li>
+                                <a href="index.phtml"><i class="icon-home"></i>Home</a>
+
+                            </li>
+
+                            <li>
+                                <a href="venue_list.phtml"><i class="icon-file"></i>Venues</a>
+
+                            </li>
+
+                            <?php
+                            if ($SIGN_IN) {
+                                echo ' <li>
+                                <a href="newvenue.phtml"><i class="icon-picture"></i> Create Venue</a>
+
+                            </li>';
+                            }
+                            if ($RULE == 1) {
+                                echo '<li>
+                                <a href="venue_req.phtml"><i class="icon-film"></i>Requests</a>
+
+                            </li>';
+                            }
+                            ?>
+                            <li>
+                                <a href="http://malloboany.blogspot.com"><i class="icon-calendar"></i>Blog</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- END NAV -->     
+                </div>
+            </div>
+            <!-- END HEADER -->
+
+            <!--  Log in Form  -->
+            <!-----start-main---->
+            <div class="header-map" style="background:url(images/backgrounds/005.jpg)  no-repeat center fixed;">
+                <div class="center" >
+                    <img style="
+                         margin: 25px;
+                         width:10%;
+                         border-radius:50%;
+                         -webkit-border-radius:50%;
+                         -o-border-radius:50%;
+                         -moz-border-radius:50%;
+                         background: #fff;
+                         border:6px solid rgba(221, 218, 215, 0.23);" 
+                         src="images/woman.png" alt=""/>
+
+                    <div class="center">
+                        <div class="tick" >
+                            <h1 >
+                                Own Venue?
+                                <p>meet your customers here ..</p>
+                            </h1>
+                        </div>
+                    </div>
+
+
+                    <form style='padding: 40px; ' method="post">
+                        <li>
+                            <?php
+                            echo '<input type="text" class="btn-large" 
+                               name="NAME"
+                               value="' . $venue_name . '" onfocus="this.value = \'\';" 
+                               onblur="if (this.value == \'\') {
+                                                       this.value = \'' . $venue_name . '\';
+                                                   }" ><a href="#" class=" icon user"></a>';
+                            ?>
+                        </li>
+
+                        <li>
+                            <?php
+                            $result = db_get_kinds();
+                            if ($result != 0) {
+                                echo '<select class="btn-large" name="KIND">';
+                                foreach ($result as $value) {
+                                    echo '<option value="' . $value["Kind_ID"] . '">' . $value["Kind_Name"] . '</option>';
+                                }
+                                echo '</select>';
+                            }
+                            ?>
+                        </li>
+                        <li>
+                            <?php
+                            echo '<input type="text" class="btn-large" 
+                               name="PRICE"
+                               value="' . $venue_price . '" onfocus="this.value = \'\';" 
+                               onblur="if (this.value == \'\') {
+                                                       this.value = \'' . $venue_price . '\';
+                                                   }" ><a href="#" class=" icon user"></a>';
+                            ?>                            
+                        </li>
+                        <li>
+                            <?php
+                            echo '<input type="text" class="btn-large" 
+                               name="ADRESS"
+                               value="' . $venue_adress . '" onfocus="this.value = \'\';" 
+                               onblur="if (this.value == \'\') {
+                                                       this.value = \'' . $venue_adress . '\';
+                                                   }" ><a href="#" class=" icon user"></a>';
+                            ?>                            
+                        </li>
+                        <li>
+                            <?php
+                            echo '<input type="phone" class="btn-large" 
+                               name="PHONE"
+                               value="' . $venue_phone . '" onfocus="this.value = \'\';" 
+                               onblur="if (this.value == \'\') {
+                                                       this.value = \'' . $venue_phone . '\';
+                                                   }" ><a href="#" class=" icon user"></a>';
+                            ?>                            
+                        </li>
+                        <div class="p-container">
+
+                            <input name ="submit_create" class ="btn-large" type="submit" onclick="myFunction()" value="CREATE" >
+                            <div class="clear"> </div>
+                        </div>
+                        <label class="btn-large" style="color: red;	float: none;text-align: center;"><?php if ($message) echo $message; ?></label>
+
+                    </form>
+                </div>
+            </div>
+            <!--//End-login-form-->
+
+            <div id="footer" class="sidebar-right">
+                <div class="group inner footer_row_1 footer_cols_3">
+
+
+                    <div class="sliderWrap">
+                        <div class="widget-last widget quick-contact">
+                            <h3>Quick Contact</h3>
+                            <form id="contact-form-example" class="contact-form" method="post" >
+                                <div class="usermessagea"></div>
+
+                                <ul>
+                                    <li class="text-field">
+                                        <label for="name-example">
+                                            <text class="label">Name</text>
+                                            <input type ="text" name = "mName"></input>
+                                        </label>
+                                    </li>
+                                    <li class="text-field">
+                                        <label for="name-example">
+                                            <text class="label">Email</text>
+                                            <input type ="text" name = "mEmail"></input>
+                                        </label>
+                                    </li>
+                                    <li class="textarea-field">
+                                        <label for="message-example">
+                                            <span class="label">Message</span>
+                                            <input type ="text" name = "mMessage" >  </input>
+                                        </label>
+
+                                    </li>
+                                    <li class="submit-button">
+                                        <input type="submit" name="mSendemail" value="send message" class="sendmail alignright" />			
+                                    </li>
+                                </ul>
+
+                            </form>
+                            <script type="text/javascript">
+                                var messages_form_footer = {
+                                    name: "Insert your name",
+                                    email: "Insert your email",
+                                    message: "Insert your message"
+                                };
+                            </script>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- START FOOTER -->
+            <div id="copyright" class="group">
+                <div class="inner group">
+                    <div class="left">
+                        <p >
+                            Copyright <a href="http://wizme.com"><strong>Wizme</strong></a> 2017 -
+                            Powered by <a href="http://malloboany.blogspot.com" ><strong>malloboany</strong></a>
+                        </p>
+                    </div>
+                    <div class="right">
+                        <a href="http://facebook.com/m.alloboany" class="socials facebook" style="font-size:30px;" title="Facebook">F</a>
+                        <a href="#" class="socials twitter" style="font-size:30px;" title="Twitter">L</a>
+                        <a href="#" class="socials skype" style="font-size:30px;" title="Skype">H</a>
+                        <a href="#" class="socials google" style="font-size:30px;" title="Google">G</a>
+                        <a href="#" class="socials linkedin" style="font-size:30px;" title="Linkedin">I</a>
+                        <a href="#" class="socials rss" style="font-size:30px;" title="Rss">R</a>
+                    </div>
+                </div>
+            </div>
+
+            <script type="text/javascript" src="js/jquery.custom.js"></script>
+            <script type="text/javascript" src="js/contact.js"></script>
+
+            <script type="text/javascript">
+
+                                var _gaq = _gaq || [];
+                                _gaq.push(['_setAccount', 'UA-36516261-21']);
+                                _gaq.push(['_trackPageview']);
+
+                                (function () {
+                                    var ga = document.createElement('script');
+                                    ga.type = 'text/javascript';
+                                    ga.async = true;
+                                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                                    var s = document.getElementsByTagName('script')[0];
+                                    s.parentNode.insertBefore(ga, s);
+                                })();
+
+            </script>		
+    </body>
+</html>
